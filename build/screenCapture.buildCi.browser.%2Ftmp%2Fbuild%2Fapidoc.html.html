@@ -1,0 +1,146 @@
+<html><head></head><body><div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a href="http://github.com/konteck/express-sessions">express-sessions (v1.0.6)</a>
+</h1>
+<h4>ExpressJS MongoDB/Redis Session Storage</h4>
+<div class="apidocSectionDiv"><a href="#apidoc.tableOfContents" id="apidoc.tableOfContents"><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.express-sessions">module express-sessions</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.express-sessions.express-sessions">
+            function <span class="apidocSignatureSpan"></span>express-sessions
+            <span class="apidocSignatureSpan">(options, cb)</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.express-sessions" id="apidoc.module.express-sessions">module express-sessions</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.express-sessions.express-sessions" id="apidoc.element.express-sessions.express-sessions">
+        function <span class="apidocSignatureSpan"></span>express-sessions
+        <span class="apidocSignatureSpan">(options, cb)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">express-sessions = function (options, cb) {
+    var options = {
+        storage: options.storage || 'mongodb',
+        host: options.host || 'localhost',
+        port: options.port || (options.storage == 'redis' ? 6379 : 27017),
+        db: options.db || 'test',
+        collection: options.collection || 'sessions',
+        instance: options.instance || null,
+        expire: options.expire || 86400
+    };
+
+    express.session.Store.call(this, options);
+
+    switch (options.storage) {
+        case 'mongodb':
+            if (options.instance) {
+                mongoose = options.instance;
+            } else {
+                mongoose.connect('mongodb://' + options.host + ':' + options.port + '/' + options.db);
+            }
+
+            var schema = new mongoose.Schema({
+                sid: { type: String, required: true, unique: true },
+                data: { type: {} },
+                lastAccess: { type: Date, index: { expires: parseInt(options.expire) * 1000} },
+                expires: { type: Date, index: true }
+            });
+
+            MongoStore.options = options;
+            MongoStore.client = mongoose.model(options.collection, schema);
+
+            for (var i in MongoStore) {
+                SessionStore.prototype[i] = MongoStore[i];
+            }
+            break;
+        case 'redis':
+            if (options.instance) {
+                RedisStore.client = options.instance;
+            } else {
+                RedisStore.client = redis.createClient(options.port, options.host);
+            }
+
+            RedisStore.options = options;
+
+            for (var i in RedisStore) {
+                SessionStore.prototype[i] = RedisStore[i];
+            }
+            break;
+    }
+
+
+    if (cb) cb.call(null);
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
+</body></html>
